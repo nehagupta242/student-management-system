@@ -23,7 +23,7 @@ public class App {
                     scanner,
                     "Enter your choice: ",
                     1,
-                    6
+                    7
             );
 
             switch (choice) {
@@ -49,6 +49,10 @@ public class App {
                     break;
 
                 case 6:
+                    filterStudents(scanner, studentDAO);
+                    break;
+
+                case 7:
                     System.out.println(
                             "Exiting Student Management System..."
                     );
@@ -58,7 +62,7 @@ public class App {
                     break;
             }
 
-        } while (choice != 6);
+        } while (choice != 7);
 
         scanner.close();
     }
@@ -76,10 +80,11 @@ public class App {
         System.out.println("================================");
         System.out.println("1. Add Student");
         System.out.println("2. View All Students");
-        System.out.println("3. Search Student");
+        System.out.println("3. Search Students");
         System.out.println("4. Update Student");
         System.out.println("5. Delete Student");
-        System.out.println("6. Exit");
+        System.out.println("6. Filter Students");
+        System.out.println("7. Exit");
         System.out.println("================================");
     }
 
@@ -154,35 +159,12 @@ public class App {
             return;
         }
 
-        System.out.printf(
-                "%-5s %-20s %-30s %-25s %-5s%n",
-                "ID",
-                "Name",
-                "Email",
-                "Course",
-                "Year"
-        );
-
-        System.out.println(
-                "----------------------------------------------------------------------------------------"
-        );
-
-        for (Student student : students) {
-
-            System.out.printf(
-                    "%-5d %-20s %-30s %-25s %-5d%n",
-                    student.getId(),
-                    student.getName(),
-                    student.getEmail(),
-                    student.getCourse(),
-                    student.getYear()
-            );
-        }
+        displayStudentList(students);
     }
 
 
     // =========================
-    // SEARCH
+    // SEARCH MENU
     // =========================
 
     private static void searchStudent(
@@ -190,7 +172,47 @@ public class App {
             StudentDAO studentDAO) {
 
         System.out.println();
-        System.out.println("--- Search Student ---");
+        System.out.println("--- Search Students ---");
+        System.out.println("1. Search by ID");
+        System.out.println("2. Search by Name");
+        System.out.println("3. Back");
+
+        int choice = readInt(
+                scanner,
+                "Enter your choice: ",
+                1,
+                3
+        );
+
+        switch (choice) {
+
+            case 1:
+                searchStudentById(scanner, studentDAO);
+                break;
+
+            case 2:
+                searchStudentsByName(scanner, studentDAO);
+                break;
+
+            case 3:
+                return;
+
+            default:
+                break;
+        }
+    }
+
+
+    // =========================
+    // SEARCH BY ID
+    // =========================
+
+    private static void searchStudentById(
+            Scanner scanner,
+            StudentDAO studentDAO) {
+
+        System.out.println();
+        System.out.println("--- Search Student by ID ---");
 
         int id = readPositiveInt(
                 scanner,
@@ -211,7 +233,48 @@ public class App {
 
         System.out.println();
         System.out.println("Student found!");
+
         displayStudent(student);
+    }
+
+
+    // =========================
+    // SEARCH BY NAME
+    // =========================
+
+    private static void searchStudentsByName(
+            Scanner scanner,
+            StudentDAO studentDAO) {
+
+        System.out.println();
+        System.out.println("--- Search Students by Name ---");
+
+        String name = readNonEmptyString(
+                scanner,
+                "Enter student name: "
+        );
+
+        List<Student> students =
+                studentDAO.searchStudentsByName(name);
+
+        if (students.isEmpty()) {
+
+            System.out.println(
+                    "No students found matching \"" +
+                            name +
+                            "\"."
+            );
+
+            return;
+        }
+
+        System.out.println();
+        System.out.println(
+                students.size() +
+                        " student(s) found:"
+        );
+
+        displayStudentList(students);
     }
 
 
@@ -375,6 +438,128 @@ public class App {
 
 
     // =========================
+    // FILTER MENU
+    // =========================
+
+    private static void filterStudents(
+            Scanner scanner,
+            StudentDAO studentDAO) {
+
+        System.out.println();
+        System.out.println("--- Filter Students ---");
+        System.out.println("1. Filter by Course");
+        System.out.println("2. Filter by Year");
+        System.out.println("3. Back");
+
+        int choice = readInt(
+                scanner,
+                "Enter your choice: ",
+                1,
+                3
+        );
+
+        switch (choice) {
+
+            case 1:
+                filterByCourse(scanner, studentDAO);
+                break;
+
+            case 2:
+                filterByYear(scanner, studentDAO);
+                break;
+
+            case 3:
+                return;
+
+            default:
+                break;
+        }
+    }
+
+
+    // =========================
+    // FILTER BY COURSE
+    // =========================
+
+    private static void filterByCourse(
+            Scanner scanner,
+            StudentDAO studentDAO) {
+
+        System.out.println();
+        System.out.println("--- Filter by Course ---");
+
+        String course = readNonEmptyString(
+                scanner,
+                "Enter course: "
+        );
+
+        List<Student> students =
+                studentDAO.getStudentsByCourse(course);
+
+        if (students.isEmpty()) {
+
+            System.out.println(
+                    "No students found for course \"" +
+                            course +
+                            "\"."
+            );
+
+            return;
+        }
+
+        System.out.println();
+        System.out.println(
+                students.size() +
+                        " student(s) found:"
+        );
+
+        displayStudentList(students);
+    }
+
+
+    // =========================
+    // FILTER BY YEAR
+    // =========================
+
+    private static void filterByYear(
+            Scanner scanner,
+            StudentDAO studentDAO) {
+
+        System.out.println();
+        System.out.println("--- Filter by Year ---");
+
+        int year = readInt(
+                scanner,
+                "Enter year (1-4): ",
+                1,
+                4
+        );
+
+        List<Student> students =
+                studentDAO.getStudentsByYear(year);
+
+        if (students.isEmpty()) {
+
+            System.out.println(
+                    "No students found in year " +
+                            year +
+                            "."
+            );
+
+            return;
+        }
+
+        System.out.println();
+        System.out.println(
+                students.size() +
+                        " student(s) found:"
+        );
+
+        displayStudentList(students);
+    }
+
+
+    // =========================
     // DISPLAY ONE STUDENT
     // =========================
 
@@ -404,6 +589,42 @@ public class App {
 
 
     // =========================
+    // DISPLAY STUDENT LIST
+    // =========================
+
+    private static void displayStudentList(
+            List<Student> students) {
+
+        System.out.println();
+
+        System.out.printf(
+                "%-5s %-20s %-30s %-25s %-5s%n",
+                "ID",
+                "Name",
+                "Email",
+                "Course",
+                "Year"
+        );
+
+        System.out.println(
+                "----------------------------------------------------------------------------------------"
+        );
+
+        for (Student student : students) {
+
+            System.out.printf(
+                    "%-5d %-20s %-30s %-25s %-5d%n",
+                    student.getId(),
+                    student.getName(),
+                    student.getEmail(),
+                    student.getCourse(),
+                    student.getYear()
+            );
+        }
+    }
+
+
+    // =========================
     // INTEGER VALIDATION
     // =========================
 
@@ -425,16 +646,18 @@ public class App {
                 int value =
                         Integer.parseInt(input);
 
-                if (value >= min && value <= max) {
+                if (value >= min &&
+                        value <= max) {
+
                     return value;
                 }
 
                 System.out.println(
-                        "Please enter a number between "
-                                + min
-                                + " and "
-                                + max
-                                + "."
+                        "Please enter a number between " +
+                                min +
+                                " and " +
+                                max +
+                                "."
                 );
 
             } catch (NumberFormatException e) {

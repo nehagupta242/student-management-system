@@ -169,4 +169,136 @@ public boolean deleteStudent(int id) {
         return false;
     }
 }
+// READ - Search students by name
+public List<Student> searchStudentsByName(String name) {
+
+    List<Student> students = new ArrayList<>();
+
+    String sql =
+            "SELECT * FROM students WHERE name LIKE ?";
+
+    try (
+        Connection connection = DBConnection.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql)
+    ) {
+
+        statement.setString(1, "%" + name + "%");
+
+        try (ResultSet resultSet = statement.executeQuery()) {
+
+            while (resultSet.next()) {
+
+                int id = resultSet.getInt("id");
+                String studentName = resultSet.getString("name");
+                String email = resultSet.getString("email");
+                String course = resultSet.getString("course");
+                int year = resultSet.getInt("year");
+
+                Student student = new Student(
+                        id,
+                        studentName,
+                        email,
+                        course,
+                        year
+                );
+
+                students.add(student);
+            }
+        }
+
+    } catch (SQLException e) {
+
+        System.out.println(
+                "Failed to search students by name."
+        );
+
+        e.printStackTrace();
+    }
+
+    return students;
+}
+// READ - Filter students by course
+public List<Student> getStudentsByCourse(String course) {
+
+    List<Student> students = new ArrayList<>();
+
+    String sql =
+            "SELECT * FROM students WHERE LOWER(course) = LOWER(?)";
+
+    try (
+        Connection connection = DBConnection.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql)
+    ) {
+
+        statement.setString(1, course);
+
+        try (ResultSet resultSet = statement.executeQuery()) {
+
+            while (resultSet.next()) {
+
+                Student student = new Student(
+                        resultSet.getInt("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("email"),
+                        resultSet.getString("course"),
+                        resultSet.getInt("year")
+                );
+
+                students.add(student);
+            }
+        }
+
+    } catch (SQLException e) {
+
+        System.out.println(
+                "Failed to filter students by course."
+        );
+
+        e.printStackTrace();
+    }
+
+    return students;
+}
+// READ - Filter students by year
+public List<Student> getStudentsByYear(int year) {
+
+    List<Student> students = new ArrayList<>();
+
+    String sql =
+            "SELECT * FROM students WHERE year = ?";
+
+    try (
+        Connection connection = DBConnection.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql)
+    ) {
+
+        statement.setInt(1, year);
+
+        try (ResultSet resultSet = statement.executeQuery()) {
+
+            while (resultSet.next()) {
+
+                Student student = new Student(
+                        resultSet.getInt("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("email"),
+                        resultSet.getString("course"),
+                        resultSet.getInt("year")
+                );
+
+                students.add(student);
+            }
+        }
+
+    } catch (SQLException e) {
+
+        System.out.println(
+                "Failed to filter students by year."
+        );
+
+        e.printStackTrace();
+    }
+
+    return students;
+}
 }
