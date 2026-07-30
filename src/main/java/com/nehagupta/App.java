@@ -1,12 +1,8 @@
 package com.nehagupta;
 
 import com.nehagupta.dao.StudentDAO;
-import com.nehagupta.database.DBConnection;
 import com.nehagupta.model.Student;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -21,21 +17,14 @@ public class App {
 
         do {
 
-            System.out.println();
-            System.out.println("================================");
-            System.out.println("   STUDENT MANAGEMENT SYSTEM");
-            System.out.println("================================");
-            System.out.println("1. Add Student");
-            System.out.println("2. View All Students");
-            System.out.println("3. Search Student");
-            System.out.println("4. Update Student");
-            System.out.println("5. Delete Student");
-            System.out.println("6. Exit");
-            System.out.println("================================");
-            System.out.print("Enter your choice: ");
+            displayMenu();
 
-            choice = scanner.nextInt();
-            scanner.nextLine();
+            choice = readInt(
+                    scanner,
+                    "Enter your choice: ",
+                    1,
+                    6
+            );
 
             switch (choice) {
 
@@ -60,11 +49,13 @@ public class App {
                     break;
 
                 case 6:
-                    System.out.println("Exiting Student Management System...");
+                    System.out.println(
+                            "Exiting Student Management System..."
+                    );
                     break;
 
                 default:
-                    System.out.println("Invalid choice. Please try again.");
+                    break;
             }
 
         } while (choice != 6);
@@ -73,6 +64,30 @@ public class App {
     }
 
 
+    // =========================
+    // DISPLAY MENU
+    // =========================
+
+    private static void displayMenu() {
+
+        System.out.println();
+        System.out.println("================================");
+        System.out.println("   STUDENT MANAGEMENT SYSTEM");
+        System.out.println("================================");
+        System.out.println("1. Add Student");
+        System.out.println("2. View All Students");
+        System.out.println("3. Search Student");
+        System.out.println("4. Update Student");
+        System.out.println("5. Delete Student");
+        System.out.println("6. Exit");
+        System.out.println("================================");
+    }
+
+
+    // =========================
+    // CREATE
+    // =========================
+
     private static void addStudent(
             Scanner scanner,
             StudentDAO studentDAO) {
@@ -80,31 +95,46 @@ public class App {
         System.out.println();
         System.out.println("--- Add Student ---");
 
-        System.out.print("Enter student name: ");
-        String name = scanner.nextLine();
+        String name = readNonEmptyString(
+                scanner,
+                "Enter student name: "
+        );
 
-        System.out.print("Enter student email: ");
-        String email = scanner.nextLine();
+        String email = readEmail(scanner);
 
-        System.out.print("Enter student course: ");
-        String course = scanner.nextLine();
+        String course = readNonEmptyString(
+                scanner,
+                "Enter student course: "
+        );
 
-        System.out.print("Enter student year: ");
-        int year = scanner.nextInt();
-        scanner.nextLine();
+        int year = readInt(
+                scanner,
+                "Enter student year (1-4): ",
+                1,
+                4
+        );
 
         Student student =
                 new Student(name, email, course, year);
 
-        boolean added = studentDAO.addStudent(student);
+        boolean added =
+                studentDAO.addStudent(student);
 
         if (added) {
-            System.out.println("Student added successfully!");
+            System.out.println(
+                    "Student added successfully!"
+            );
         } else {
-            System.out.println("Could not add student.");
+            System.out.println(
+                    "Could not add student."
+            );
         }
     }
 
+
+    // =========================
+    // READ ALL
+    // =========================
 
     private static void viewAllStudents(
             StudentDAO studentDAO) {
@@ -117,7 +147,10 @@ public class App {
 
         if (students.isEmpty()) {
 
-            System.out.println("No students found.");
+            System.out.println(
+                    "No students found."
+            );
+
             return;
         }
 
@@ -146,113 +179,379 @@ public class App {
             );
         }
     }
-private static void searchStudent(
-        Scanner scanner,
-        StudentDAO studentDAO) {
 
-    System.out.println();
-    System.out.println("--- Search Student ---");
 
-    System.out.print("Enter student ID: ");
-    int id = scanner.nextInt();
-    scanner.nextLine();
+    // =========================
+    // SEARCH
+    // =========================
 
-    Student student = studentDAO.getStudentById(id);
+    private static void searchStudent(
+            Scanner scanner,
+            StudentDAO studentDAO) {
 
-    if (student == null) {
-        System.out.println("Student not found.");
-        return;
+        System.out.println();
+        System.out.println("--- Search Student ---");
+
+        int id = readPositiveInt(
+                scanner,
+                "Enter student ID: "
+        );
+
+        Student student =
+                studentDAO.getStudentById(id);
+
+        if (student == null) {
+
+            System.out.println(
+                    "Student not found."
+            );
+
+            return;
+        }
+
+        System.out.println();
+        System.out.println("Student found!");
+        displayStudent(student);
     }
 
-    System.out.println();
-    System.out.println("Student found!");
-    System.out.println("ID     : " + student.getId());
-    System.out.println("Name   : " + student.getName());
-    System.out.println("Email  : " + student.getEmail());
-    System.out.println("Course : " + student.getCourse());
-    System.out.println("Year   : " + student.getYear());
-}
-private static void updateStudent(
-        Scanner scanner,
-        StudentDAO studentDAO) {
 
-    System.out.println();
-    System.out.println("--- Update Student ---");
+    // =========================
+    // UPDATE
+    // =========================
 
-    System.out.print("Enter student ID to update: ");
-    int id = scanner.nextInt();
-    scanner.nextLine();
+    private static void updateStudent(
+            Scanner scanner,
+            StudentDAO studentDAO) {
 
-    Student existingStudent = studentDAO.getStudentById(id);
+        System.out.println();
+        System.out.println("--- Update Student ---");
 
-    if (existingStudent == null) {
-        System.out.println("Student not found.");
-        return;
+        int id = readPositiveInt(
+                scanner,
+                "Enter student ID to update: "
+        );
+
+        Student existingStudent =
+                studentDAO.getStudentById(id);
+
+        if (existingStudent == null) {
+
+            System.out.println(
+                    "Student not found."
+            );
+
+            return;
+        }
+
+        System.out.println();
+        System.out.println(
+                "Updating student:"
+        );
+
+        displayStudent(existingStudent);
+
+        System.out.println();
+
+        String name = readNonEmptyString(
+                scanner,
+                "Enter new name: "
+        );
+
+        String email = readEmailWithPrompt(
+                scanner,
+                "Enter new email: "
+        );
+
+        String course = readNonEmptyString(
+                scanner,
+                "Enter new course: "
+        );
+
+        int year = readInt(
+                scanner,
+                "Enter new year (1-4): ",
+                1,
+                4
+        );
+
+        Student updatedStudent =
+                new Student(
+                        id,
+                        name,
+                        email,
+                        course,
+                        year
+                );
+
+        boolean updated =
+                studentDAO.updateStudent(
+                        updatedStudent
+                );
+
+        if (updated) {
+
+            System.out.println(
+                    "Student updated successfully!"
+            );
+
+        } else {
+
+            System.out.println(
+                    "Could not update student."
+            );
+        }
     }
 
-    System.out.println("Updating: " + existingStudent.getName());
 
-    System.out.print("Enter new name: ");
-    String name = scanner.nextLine();
+    // =========================
+    // DELETE
+    // =========================
 
-    System.out.print("Enter new email: ");
-    String email = scanner.nextLine();
+    private static void deleteStudent(
+            Scanner scanner,
+            StudentDAO studentDAO) {
 
-    System.out.print("Enter new course: ");
-    String course = scanner.nextLine();
+        System.out.println();
+        System.out.println("--- Delete Student ---");
 
-    System.out.print("Enter new year: ");
-    int year = scanner.nextInt();
-    scanner.nextLine();
+        int id = readPositiveInt(
+                scanner,
+                "Enter student ID to delete: "
+        );
 
-    Student updatedStudent =
-            new Student(id, name, email, course, year);
+        Student student =
+                studentDAO.getStudentById(id);
 
-    boolean updated =
-            studentDAO.updateStudent(updatedStudent);
+        if (student == null) {
 
-    if (updated) {
-        System.out.println("Student updated successfully!");
-    } else {
-        System.out.println("Could not update student.");
+            System.out.println(
+                    "Student not found."
+            );
+
+            return;
+        }
+
+        System.out.println();
+        System.out.println(
+                "Student selected:"
+        );
+
+        displayStudent(student);
+
+        System.out.println();
+
+        System.out.print(
+                "Are you sure you want to delete this student? (y/n): "
+        );
+
+        String confirmation =
+                scanner.nextLine().trim();
+
+        if (!confirmation.equalsIgnoreCase("y")) {
+
+            System.out.println(
+                    "Deletion cancelled."
+            );
+
+            return;
+        }
+
+        boolean deleted =
+                studentDAO.deleteStudent(id);
+
+        if (deleted) {
+
+            System.out.println(
+                    "Student deleted successfully!"
+            );
+
+        } else {
+
+            System.out.println(
+                    "Could not delete student."
+            );
+        }
     }
-}
-private static void deleteStudent(
-        Scanner scanner,
-        StudentDAO studentDAO) {
 
-    System.out.println();
-    System.out.println("--- Delete Student ---");
 
-    System.out.print("Enter student ID to delete: ");
-    int id = scanner.nextInt();
-    scanner.nextLine();
+    // =========================
+    // DISPLAY ONE STUDENT
+    // =========================
 
-    Student student = studentDAO.getStudentById(id);
+    private static void displayStudent(
+            Student student) {
 
-    if (student == null) {
-        System.out.println("Student not found.");
-        return;
+        System.out.println(
+                "ID     : " + student.getId()
+        );
+
+        System.out.println(
+                "Name   : " + student.getName()
+        );
+
+        System.out.println(
+                "Email  : " + student.getEmail()
+        );
+
+        System.out.println(
+                "Course : " + student.getCourse()
+        );
+
+        System.out.println(
+                "Year   : " + student.getYear()
+        );
     }
 
-    System.out.println();
-    System.out.println("Student: " + student.getName());
 
-    System.out.print("Are you sure you want to delete this student? (y/n): ");
-    String confirmation = scanner.nextLine();
+    // =========================
+    // INTEGER VALIDATION
+    // =========================
 
-    if (!confirmation.equalsIgnoreCase("y")) {
-        System.out.println("Deletion cancelled.");
-        return;
+    private static int readInt(
+            Scanner scanner,
+            String message,
+            int min,
+            int max) {
+
+        while (true) {
+
+            System.out.print(message);
+
+            String input =
+                    scanner.nextLine().trim();
+
+            try {
+
+                int value =
+                        Integer.parseInt(input);
+
+                if (value >= min && value <= max) {
+                    return value;
+                }
+
+                System.out.println(
+                        "Please enter a number between "
+                                + min
+                                + " and "
+                                + max
+                                + "."
+                );
+
+            } catch (NumberFormatException e) {
+
+                System.out.println(
+                        "Invalid input. Please enter a number."
+                );
+            }
+        }
     }
 
-    boolean deleted = studentDAO.deleteStudent(id);
 
-    if (deleted) {
-        System.out.println("Student deleted successfully!");
-    } else {
-        System.out.println("Could not delete student.");
+    // =========================
+    // POSITIVE INTEGER VALIDATION
+    // =========================
+
+    private static int readPositiveInt(
+            Scanner scanner,
+            String message) {
+
+        while (true) {
+
+            System.out.print(message);
+
+            String input =
+                    scanner.nextLine().trim();
+
+            try {
+
+                int value =
+                        Integer.parseInt(input);
+
+                if (value > 0) {
+                    return value;
+                }
+
+                System.out.println(
+                        "ID must be greater than 0."
+                );
+
+            } catch (NumberFormatException e) {
+
+                System.out.println(
+                        "Invalid input. Please enter a valid number."
+                );
+            }
+        }
     }
-}
-// DELETE - Delete student by ID
+
+
+    // =========================
+    // EMPTY STRING VALIDATION
+    // =========================
+
+    private static String readNonEmptyString(
+            Scanner scanner,
+            String message) {
+
+        while (true) {
+
+            System.out.print(message);
+
+            String input =
+                    scanner.nextLine().trim();
+
+            if (!input.isEmpty()) {
+                return input;
+            }
+
+            System.out.println(
+                    "This field cannot be empty."
+            );
+        }
+    }
+
+
+    // =========================
+    // EMAIL VALIDATION
+    // =========================
+
+    private static String readEmail(
+            Scanner scanner) {
+
+        return readEmailWithPrompt(
+                scanner,
+                "Enter student email: "
+        );
+    }
+
+
+    private static String readEmailWithPrompt(
+            Scanner scanner,
+            String message) {
+
+        while (true) {
+
+            System.out.print(message);
+
+            String email =
+                    scanner.nextLine().trim();
+
+            if (isValidEmail(email)) {
+                return email;
+            }
+
+            System.out.println(
+                    "Invalid email address. Please try again."
+            );
+        }
+    }
+
+
+    private static boolean isValidEmail(
+            String email) {
+
+        return email.matches(
+                "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+        );
+    }
 }
