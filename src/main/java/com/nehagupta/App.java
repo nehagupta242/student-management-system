@@ -5,6 +5,7 @@ import com.nehagupta.model.Student;
 
 import java.util.List;
 import java.util.Scanner;
+import java.util.Map;
 
 public class App {
 
@@ -23,7 +24,7 @@ public class App {
                     scanner,
                     "Enter your choice: ",
                     1,
-                    7
+                    8
             );
 
             switch (choice) {
@@ -53,16 +54,17 @@ public class App {
                     break;
 
                 case 7:
-                    System.out.println(
-                            "Exiting Student Management System..."
-                    );
-                    break;
+    viewStatistics(studentDAO);
+    break;
 
-                default:
-                    break;
+case 8:
+    System.out.println(
+            "Exiting Student Management System..."
+    );
+    break;
             }
 
-        } while (choice != 7);
+        } while (choice != 8);
 
         scanner.close();
     }
@@ -74,18 +76,18 @@ public class App {
 
     private static void displayMenu() {
 
-        System.out.println();
         System.out.println("================================");
-        System.out.println("   STUDENT MANAGEMENT SYSTEM");
-        System.out.println("================================");
-        System.out.println("1. Add Student");
-        System.out.println("2. View All Students");
-        System.out.println("3. Search Students");
-        System.out.println("4. Update Student");
-        System.out.println("5. Delete Student");
-        System.out.println("6. Filter Students");
-        System.out.println("7. Exit");
-        System.out.println("================================");
+System.out.println("   STUDENT MANAGEMENT SYSTEM");
+System.out.println("================================");
+System.out.println("1. Add Student");
+System.out.println("2. View All Students");
+System.out.println("3. Search Students");
+System.out.println("4. Update Student");
+System.out.println("5. Delete Student");
+System.out.println("6. Filter Students");
+System.out.println("7. View Statistics");
+System.out.println("8. Exit");
+System.out.println("================================");
     }
 
 
@@ -777,4 +779,66 @@ public class App {
                 "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
         );
     }
+    // =========================
+// STUDENT STATISTICS
+// =========================
+
+private static void viewStatistics(
+        StudentDAO studentDAO) {
+
+    System.out.println();
+    System.out.println("================================");
+    System.out.println("       STUDENT STATISTICS");
+    System.out.println("================================");
+
+    int totalStudents =
+            studentDAO.getTotalStudents();
+
+    System.out.println();
+    System.out.println(
+            "Total Students: " + totalStudents
+    );
+
+    System.out.println();
+    System.out.println("Students by Year:");
+    System.out.println("-----------------");
+
+    for (int year = 1; year <= 4; year++) {
+
+        int count =
+                studentDAO.getStudentCountByYear(year);
+
+        System.out.println(
+                "Year " + year + ": " + count
+        );
+    }
+
+    System.out.println();
+    System.out.println("Students by Course:");
+    System.out.println("-------------------");
+
+    Map<String, Integer> courseCounts =
+            studentDAO.getStudentCountByCourse();
+
+    if (courseCounts.isEmpty()) {
+
+        System.out.println(
+                "No course data available."
+        );
+
+    } else {
+
+        for (Map.Entry<String, Integer> entry
+                : courseCounts.entrySet()) {
+
+            System.out.printf(
+                    "%-25s : %d%n",
+                    entry.getKey(),
+                    entry.getValue()
+            );
+        }
+    }
+
+    System.out.println("================================");
+}
 }
