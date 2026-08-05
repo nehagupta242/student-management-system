@@ -8,6 +8,12 @@ public class Student {
     private String course;
     private int year;
 
+    // Default constructor (Required by Spring Boot)
+    public Student() {
+
+    }
+
+    // Constructor for adding a new student
     public Student(String name, String email, String course, int year) {
         this.name = name;
         this.email = email;
@@ -15,6 +21,7 @@ public class Student {
         this.year = year;
     }
 
+    // Constructor for retrieving a student from the database
     public Student(int id, String name, String email, String course, int year) {
         this.id = id;
         this.name = name;
@@ -22,6 +29,8 @@ public class Student {
         this.course = course;
         this.year = year;
     }
+
+    // Getters
 
     public int getId() {
         return id;
@@ -42,6 +51,8 @@ public class Student {
     public int getYear() {
         return year;
     }
+
+    // Setters
 
     public void setId(int id) {
         this.id = id;
