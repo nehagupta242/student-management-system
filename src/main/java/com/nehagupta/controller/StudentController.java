@@ -3,6 +3,7 @@ package com.nehagupta.controller;
 import com.nehagupta.model.Student;
 import com.nehagupta.service.StudentService;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -57,5 +58,18 @@ public class StudentController {
         }
 
         return "Failed to update student.";
+    }
+
+    @DeleteMapping("/students/{id}")
+    public String deleteStudent(
+            @PathVariable("id") int id) {
+
+        boolean deleted = studentService.deleteStudent(id);
+
+        if (deleted) {
+            return "Student deleted successfully!";
+        }
+
+        return "Failed to delete student.";
     }
 }
